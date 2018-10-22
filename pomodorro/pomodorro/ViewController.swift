@@ -1,11 +1,14 @@
 import UIKit
+import UserNotifications
 import Splitflap
 
 class ViewController: UIViewController {
     
     var splitflapView: Splitflap!
-    var time = 25.0 * 60.0
+    let pomodorroInterval = 25.0 * 60.0
     var timer = Timer()
+    var startDate: Date!
+    var notificationManager: NotificationManager?
     
     fileprivate func stringFromTimeInterval(interval: TimeInterval) -> String {
         let intervalInt = Int(interval)
@@ -25,25 +28,30 @@ class ViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             splitflapView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            //splitflapView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             splitflapView.heightAnchor.constraint(equalToConstant: 100.0),
             splitflapView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             splitflapView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
             ])
         
-        splitflapView.setText("12345", animated: false)
-        
-        runTimer()
+        //пока запускаем обратный отсчет при загрузке контроллера
+        startCountdown()
         
     }
     
-    func runTimer() {
+    //начать обратный отсчет таймера
+    func startCountdown() {
+        startDate = Date()
+        let destinationDate = startDate.addingTimeInterval(1.0)
+        notificationManager?.removeAllReminders()
+        notificationManager?.createReminder(date: destinationDate, title: "Pomodorro", body: "It's time to take a ☕️")
         timer = Timer.scheduledTimer(timeInterval: 1, target: self,   selector: (#selector(ViewController.updateTimer)), userInfo: nil, repeats: true)
     }
     
     @objc func updateTimer() {
-        self.time = self.time - 1.0
-        let timeString = self.stringFromTimeInterval(interval: self.time)
+        let currentDate = Date()
+        let deltaT = currentDate.timeIntervalSince1970 - self.startDate.timeIntervalSince1970
+        let timeRemaining = self.pomodorroInterval - deltaT
+        let timeString = self.stringFromTimeInterval(interval: timeRemaining)
         splitflapView.setText(timeString, animated: false)
     }
 
