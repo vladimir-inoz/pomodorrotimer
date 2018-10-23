@@ -27,7 +27,7 @@ class ViewController: UIViewController {
     //начать обратный отсчет таймера
     func startCountdown() {
         startDate = Date()
-        let destinationDate = startDate.addingTimeInterval(1.0)
+        let destinationDate = startDate.addingTimeInterval(pomodorroInterval)
         notificationManager?.removeAllReminders()
         notificationManager?.createReminder(date: destinationDate, title: "Pomodorro", body: "It's time to take a ☕️")
         timer = Timer.scheduledTimer(timeInterval: 1, target: self,   selector: (#selector(ViewController.updateTimer)), userInfo: nil, repeats: true)
@@ -55,6 +55,11 @@ class ViewController: UIViewController {
         let currentDate = Date()
         let deltaT = currentDate.timeIntervalSince1970 - self.startDate.timeIntervalSince1970
         let timeRemaining = self.pomodorroInterval - deltaT
+        if timeRemaining < 0 {
+            timer.invalidate()
+            timer = nil
+            return
+        }
         let timeString = self.stringFromTimeInterval(interval: timeRemaining)
         timeLabel.text = timeString
     }
