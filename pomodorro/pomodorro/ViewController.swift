@@ -15,7 +15,7 @@ class ViewController: UIViewController {
     @IBOutlet var countdownView: CountdownView!
     
     ///User selected time interval
-    var timeTotal = 50.0
+    var timeTotal = 10.0
     var timer: Timer? = nil
     var notificationManager: NotificationManager?
     var startDate: Date? = nil
@@ -36,7 +36,8 @@ class ViewController: UIViewController {
         let destinationDate = startDate!.addingTimeInterval(timeTotal)
         notificationManager?.removeAllReminders()
         notificationManager?.createReminder(date: destinationDate, title: "Pomodorro", body: "It's time to take a ☕️")
-        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self,   selector: (#selector(ViewController.updateTimer)), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 0.1, target: self,   selector: (#selector(ViewController.updateTimer)), userInfo: nil, repeats: true)
+        timer?.fire()
         state = .running
     }
     
@@ -62,10 +63,10 @@ class ViewController: UIViewController {
         }
     }
     
-    ///Calculate remaining time
-    func calculateRemaining(startDate: Date) -> TimeInterval {
+    ///Calculate remaining time from starting date and total time
+    func calculateRemaining(startDate: Date, interval: TimeInterval) -> TimeInterval {
         let currentDate = Date()
-        let finishDate = startDate.addingTimeInterval(timeTotal)
+        let finishDate = startDate.addingTimeInterval(interval)
         return finishDate.timeIntervalSince1970 - currentDate.timeIntervalSince1970
     }
     
@@ -73,7 +74,7 @@ class ViewController: UIViewController {
     @objc func updateTimer() {
         switch state {
         case .running:
-            let timeRemaining = calculateRemaining(startDate: startDate!)
+            let timeRemaining = calculateRemaining(startDate: startDate!, interval: timeTotal)
             
             if timeRemaining < 0 {
                 resetCountdown()
