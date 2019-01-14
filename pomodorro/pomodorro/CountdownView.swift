@@ -50,7 +50,7 @@ class CountdownView: UIView {
         let center = CGPoint(x: bounds.width/2, y: bounds.height/2)
         let radius: CGFloat = min(bounds.width, bounds.height)
         let startAngle: CGFloat = 1.5 * .pi
-        var endAngle: CGFloat = startAngle + 2 * .pi * percentComplete
+        var endAngle: CGFloat = startAngle + 2 * .pi * (percentComplete - 0.0001)
         while endAngle > 2 * .pi {
             endAngle = endAngle - 2 * .pi
         }

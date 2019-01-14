@@ -15,7 +15,7 @@ class ViewController: UIViewController {
     @IBOutlet var countdownView: CountdownView!
     
     ///User selected time interval
-    var timeTotal = Constants.pomodorro
+    var timeTotal = 50.0
     var timer: Timer? = nil
     var notificationManager: NotificationManager?
     var startDate: Date? = nil
@@ -48,6 +48,9 @@ class ViewController: UIViewController {
             timer = nil
         }
         state = .stopped
+        
+        //update countdown view
+        countdownView.timeRemaining = countdownView.timeTotal
     }
     
     @IBAction func startStopToggle() {
