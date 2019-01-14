@@ -3,7 +3,7 @@ import UserNotifications
 
 enum StartStopState {
     case stopped
-    case started
+    case running
 }
 
 class ViewController: UIViewController {
@@ -14,62 +14,86 @@ class ViewController: UIViewController {
     
     @IBOutlet var countdownView: CountdownView!
     
-    var pomodorroInterval = Constants.pomodorro
-    var timer: Timer! = nil
-    var startDate: Date! = nil
+    ///User selected time interval
+    var timeTotal = Constants.pomodorro
+    var timer: Timer? = nil
     var notificationManager: NotificationManager?
+    var startDate: Date? = nil
     
-    private var startStopState: StartStopState = .stopped
+    private var state: StartStopState = .stopped
     
-    //начать обратный отсчет таймера
-    func startCountdown() {
-        startDate = Date()
-        let destinationDate = startDate.addingTimeInterval(pomodorroInterval)
-        notificationManager?.removeAllReminders()
-        notificationManager?.createReminder(date: destinationDate, title: "Pomodorro", body: "It's time to take a ☕️")
-        timer = Timer.scheduledTimer(timeInterval: 1, target: self,   selector: (#selector(ViewController.updateTimer)), userInfo: nil, repeats: true)
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        //setup countdown view
+        countdownView.timeTotal = timeTotal
+        countdownView.timeRemaining = timeTotal
     }
     
-    //остановить обратный отсчет таймера
+    //start timer
+    func startCountdown() {
+        startDate = Date()
+        let destinationDate = startDate!.addingTimeInterval(timeTotal)
+        notificationManager?.removeAllReminders()
+        notificationManager?.createReminder(date: destinationDate, title: "Pomodorro", body: "It's time to take a ☕️")
+        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self,   selector: (#selector(ViewController.updateTimer)), userInfo: nil, repeats: true)
+        state = .running
+    }
+    
+    //stop timer
     func resetCountdown() {
         notificationManager?.removeAllReminders()
         if timer != nil {
-            timer.invalidate()
+            timer?.invalidate()
             timer = nil
         }
+        state = .stopped
     }
     
     @IBAction func startStopToggle() {
-        switch startStopState {
+        switch state {
         case .stopped:
             startCountdown()
-        case .started:
+        case .running:
             resetCountdown()
         }
     }
     
-    @objc func updateTimer() {
+    ///Calculate remaining time
+    func calculateRemaining(startDate: Date) -> TimeInterval {
         let currentDate = Date()
-        let deltaT = currentDate.timeIntervalSince1970 - self.startDate.timeIntervalSince1970
-        let timeRemaining = self.pomodorroInterval - deltaT
-        if timeRemaining < 0 {
-            timer.invalidate()
-            timer = nil
-            return
-        }
-        
-        countdownView.timeTotal = Constants.pomodorro
-        countdownView.timeRemaining = timeRemaining
+        let finishDate = startDate.addingTimeInterval(timeTotal)
+        return finishDate.timeIntervalSince1970 - currentDate.timeIntervalSince1970
     }
     
+    ///Timer fire function
+    @objc func updateTimer() {
+        switch state {
+        case .running:
+            let timeRemaining = calculateRemaining(startDate: startDate!)
+            
+            if timeRemaining < 0 {
+                resetCountdown()
+                return
+            }
+            
+            countdownView.timeRemaining = timeRemaining
+            countdownView.timeTotal = timeTotal
+        default:
+            return
+        }
+    }
+    
+    ///Update timeTotal from date picker
     @IBAction func unwindToThisView(sender: UIStoryboardSegue) {
         guard let sourceViewController = sender.source as? DurationViewController else {
             return
         }
         
         resetCountdown()
-        let duration = sourceViewController.datePicker.countDownDuration
-        pomodorroInterval = duration
+        timeTotal = sourceViewController.datePicker.countDownDuration
+        countdownView.timeRemaining = timeTotal
+        countdownView.timeTotal = timeTotal
     }
 
 }

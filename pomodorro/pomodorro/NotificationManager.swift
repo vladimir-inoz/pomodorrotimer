@@ -3,10 +3,9 @@ import UserNotifications
 
 class NotificationManager {
     
-    //все зарегистрированные уведомления
+    //all registered reminders
     var registeredNotificationsIdentifiers = [String]()
     
-    //в инициализации спрашиваем у пользователя об уведомлениях
     init() {
         let center = UNUserNotificationCenter.current()
         // Request permission to display alerts and play sounds.
@@ -16,7 +15,7 @@ class NotificationManager {
         }
     }
     
-    //создать напоминалку
+    //create reminders
     public func createReminder(date: Date, title: String, body: String) {
         UNUserNotificationCenter.current().getNotificationSettings { (settings) in
             // Do not schedule notifications if not authorized.
@@ -47,7 +46,7 @@ class NotificationManager {
         }
     }
     
-    //удалить все текущие напоминалки
+    //delete all current reminders
     public func removeAllReminders() {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: registeredNotificationsIdentifiers)

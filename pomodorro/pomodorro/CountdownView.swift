@@ -23,6 +23,10 @@ class CountdownView: UIView {
         didSet {
             if timeRemaining < 0 {
                 timeRemaining = 0
+                return
+            }
+            if timeRemaining > timeTotal {
+                timeRemaining = timeTotal
             }
             setNeedsDisplay()
         }
@@ -34,7 +38,7 @@ class CountdownView: UIView {
     ///Cannot be more than timeRemaining
     public var timeTotal: TimeInterval = 1.0 {
         didSet {
-            if timeTotal < 0 || timeTotal > timeRemaining {
+            if timeTotal < 0 {
                 timeTotal = timeRemaining
             }
             setNeedsDisplay()
