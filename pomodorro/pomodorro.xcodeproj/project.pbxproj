@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		430DF63821AC650F75D24189 /* Pods_pomodorro.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28D655F80FBDC449443E7C34 /* Pods_pomodorro.framework */; };
+		CE8EBF6021EC4EB800DBD641 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8EBF5F21EC4EB800DBD641 /* CountdownView.swift */; };
 		E70C6E4C217DB7B300DF6B01 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E70C6E4B217DB7B300DF6B01 /* AppDelegate.swift */; };
 		E70C6E4E217DB7B300DF6B01 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E70C6E4D217DB7B300DF6B01 /* ViewController.swift */; };
 		E70C6E51217DB7B300DF6B01 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E70C6E4F217DB7B300DF6B01 /* Main.storyboard */; };
@@ -21,6 +22,7 @@
 		28D655F80FBDC449443E7C34 /* Pods_pomodorro.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_pomodorro.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		373A2574849BE5EF0DCBF8EE /* Pods-pomodorro.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pomodorro.release.xcconfig"; path = "Pods/Target Support Files/Pods-pomodorro/Pods-pomodorro.release.xcconfig"; sourceTree = "<group>"; };
 		AA307CD6E579FB7AFDB5E72E /* Pods-pomodorro.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pomodorro.debug.xcconfig"; path = "Pods/Target Support Files/Pods-pomodorro/Pods-pomodorro.debug.xcconfig"; sourceTree = "<group>"; };
+		CE8EBF5F21EC4EB800DBD641 /* CountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownView.swift; sourceTree = "<group>"; };
 		E70C6E48217DB7B300DF6B01 /* pomodorro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = pomodorro.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E70C6E4B217DB7B300DF6B01 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E70C6E4D217DB7B300DF6B01 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -83,6 +85,7 @@
 			isa = PBXGroup;
 			children = (
 				E70C6E4B217DB7B300DF6B01 /* AppDelegate.swift */,
+				CE8EBF5F21EC4EB800DBD641 /* CountdownView.swift */,
 				E70C6E4D217DB7B300DF6B01 /* ViewController.swift */,
 				E70C6E5E217E00E000DF6B01 /* NotificationManager.swift */,
 				E70C6E4F217DB7B300DF6B01 /* Main.storyboard */,
@@ -105,7 +108,6 @@
 				E70C6E44217DB7B300DF6B01 /* Sources */,
 				E70C6E45217DB7B300DF6B01 /* Frameworks */,
 				E70C6E46217DB7B300DF6B01 /* Resources */,
-				ABD9276F6257922D17CBBCA6 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -185,28 +187,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		ABD9276F6257922D17CBBCA6 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-pomodorro/Pods-pomodorro-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Splitflap/Splitflap.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Splitflap.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-pomodorro/Pods-pomodorro-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -215,6 +195,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E70C6E61217F01A400DF6B01 /* DurationViewController.swift in Sources */,
+				CE8EBF6021EC4EB800DBD641 /* CountdownView.swift in Sources */,
 				E70C6E5F217E00E000DF6B01 /* NotificationManager.swift in Sources */,
 				E70C6E4E217DB7B300DF6B01 /* ViewController.swift in Sources */,
 				E70C6E4C217DB7B300DF6B01 /* AppDelegate.swift in Sources */,

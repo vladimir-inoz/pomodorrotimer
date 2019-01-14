@@ -1,6 +1,5 @@
 import UIKit
 import UserNotifications
-import Splitflap
 
 enum StartStopState {
     case stopped
@@ -9,8 +8,13 @@ enum StartStopState {
 
 class ViewController: UIViewController {
     
-    @IBOutlet var timeLabel: UILabel!
-    var pomodorroInterval = 25.0 * 60.0
+    struct Constants {
+        static let pomodorro: Double = 25.0 * 60.0
+    }
+    
+    @IBOutlet var countdownView: CountdownView!
+    
+    var pomodorroInterval = Constants.pomodorro
     var timer: Timer! = nil
     var startDate: Date! = nil
     var notificationManager: NotificationManager?
@@ -60,8 +64,9 @@ class ViewController: UIViewController {
             timer = nil
             return
         }
-        let timeString = self.stringFromTimeInterval(interval: timeRemaining)
-        timeLabel.text = timeString
+        
+        countdownView.maxTimeInterval = Constants.pomodorro
+        countdownView.timeInterval = deltaT
     }
     
     @IBAction func unwindToThisView(sender: UIStoryboardSegue) {
