@@ -10,25 +10,39 @@ import UIKit
 
 class CountdownView: UIView {
     
-    private struct Constants {
-        static let boldWitdh: CGFloat = 10.0
-        static let regularWidth: CGFloat = 20.0
+    ///Converting TimeInterval to string 01:12
+    fileprivate func stringFromTimeInterval(interval: TimeInterval) -> NSString {
+        let intervalInt = Int(interval)
+        let minutes = intervalInt / 60
+        let seconds = intervalInt % 60
+        return NSString(format: "%0.2d:%0.2d",minutes,seconds)
     }
     
-    public var timeInterval: TimeInterval = 0.8
-    
-    ///Starting time interval
-    ///Cannot be more than timeInterval
-    public var maxTimeInterval: TimeInterval = 1.0 {
+    ///How much time is remaining
+    public var timeRemaining: TimeInterval = 0.8 {
         didSet {
-            if maxTimeInterval < 0 || maxTimeInterval > timeInterval {
-                maxTimeInterval = timeInterval
+            if timeRemaining < 0 {
+                timeRemaining = 0
             }
+            setNeedsDisplay()
+        }
+    }
+    public var boldWidth: CGFloat = 10.0
+    public var regularWidth: CGFloat = 1.0
+    
+    ///Full time
+    ///Cannot be more than timeRemaining
+    public var timeTotal: TimeInterval = 1.0 {
+        didSet {
+            if timeTotal < 0 || timeTotal > timeRemaining {
+                timeTotal = timeRemaining
+            }
+            setNeedsDisplay()
         }
     }
 
     override func draw(_ rect: CGRect) {
-        let percentComplete: CGFloat = CGFloat(timeInterval / maxTimeInterval)
+        let percentComplete: CGFloat = CGFloat(timeRemaining / timeTotal)
         let center = CGPoint(x: bounds.width/2, y: bounds.height/2)
         let radius: CGFloat = min(bounds.width, bounds.height)
         let startAngle: CGFloat = 1.5 * .pi
@@ -37,10 +51,24 @@ class CountdownView: UIView {
             endAngle = endAngle - 2 * .pi
         }
         
-        let path = UIBezierPath(arcCenter: center, radius: radius/2 - Constants.regularWidth/2, startAngle: startAngle, endAngle: endAngle, clockwise: true)
-        path.lineWidth = Constants.regularWidth
+        let pathRegular = UIBezierPath(arcCenter: center, radius: radius/2 - regularWidth/2 - boldWidth/2, startAngle: 0.0, endAngle: 2 * .pi, clockwise: true)
+        pathRegular.lineWidth = regularWidth
+        UIColor.black.setStroke()
+        pathRegular.stroke()
+        
+        let path = UIBezierPath(arcCenter: center, radius: radius/2 - boldWidth/2, startAngle: startAngle, endAngle: endAngle, clockwise: true)
+        path.lineWidth = boldWidth
         UIColor.red.setStroke()
         path.stroke()
+        
+        let string = stringFromTimeInterval(interval: timeRemaining)
+        let attributes = [
+            NSAttributedString.Key.font : UIFont.systemFont(ofSize: 40),
+            NSAttributedString.Key.foregroundColor : UIColor.red
+        ]
+        let stringSize = string.size(withAttributes: attributes)
+        let stringRect = CGRect(x: center.x - stringSize.width/2, y: center.y - stringSize.height/2, width: stringSize.width, height: stringSize.height)
+        string.draw(in: stringRect, withAttributes: attributes)
     }
     
     override var intrinsicContentSize: CGSize {

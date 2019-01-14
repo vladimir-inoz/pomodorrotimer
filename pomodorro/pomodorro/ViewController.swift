@@ -21,13 +21,6 @@ class ViewController: UIViewController {
     
     private var startStopState: StartStopState = .stopped
     
-    fileprivate func stringFromTimeInterval(interval: TimeInterval) -> String {
-        let intervalInt = Int(interval)
-        let minutes = intervalInt / 60
-        let seconds = intervalInt % 60
-        return NSString(format: "%0.2d:%0.2d",minutes,seconds) as String
-    }
-    
     //начать обратный отсчет таймера
     func startCountdown() {
         startDate = Date()
@@ -65,8 +58,8 @@ class ViewController: UIViewController {
             return
         }
         
-        countdownView.maxTimeInterval = Constants.pomodorro
-        countdownView.timeInterval = deltaT
+        countdownView.timeTotal = Constants.pomodorro
+        countdownView.timeRemaining = timeRemaining
     }
     
     @IBAction func unwindToThisView(sender: UIStoryboardSegue) {
