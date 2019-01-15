@@ -31,7 +31,9 @@ class CountdownView: UIView {
             setNeedsDisplay()
         }
     }
+    ///Bold width of red arc
     public var boldWidth: CGFloat = 10.0
+    ///Regular width of black arc
     public var regularWidth: CGFloat = 1.0
     
     ///Full time
@@ -44,6 +46,21 @@ class CountdownView: UIView {
             setNeedsDisplay()
         }
     }
+    
+    ///Fill rate (0...1)
+    public var fillRate: CGFloat = 0.0 {
+        didSet {
+            if fillRate < 0.0 {
+                fillRate = 0.0
+                return
+            }
+            if fillRate > 1.0 {
+                fillRate = 1.0
+                return
+            }
+        }
+    }
+
 
     override func draw(_ rect: CGRect) {
         let percentComplete: CGFloat = CGFloat(timeRemaining / timeTotal)
@@ -54,6 +71,20 @@ class CountdownView: UIView {
         while endAngle > 2 * .pi {
             endAngle = endAngle - 2 * .pi
         }
+        
+        //first create mask and draw fullfillment rectangle
+        if layer.mask == nil {
+            let fullCirclePath = UIBezierPath(arcCenter: center, radius: radius/2 - regularWidth/2 - boldWidth/2, startAngle: 0.0, endAngle: 2 * .pi, clockwise: true).cgPath
+            let maskLayer = CAShapeLayer()
+            maskLayer.path = fullCirclePath
+            maskLayer.fillColor = UIColor.black.cgColor
+            layer.mask = maskLayer
+        }
+        
+        //draw fill rect
+        let rectPath = UIBezierPath(rect: CGRect(x: 0.0, y: bounds.height * (1 - fillRate), width: bounds.width, height: bounds.height * fillRate))
+        UIColor.yellow.setFill()
+        rectPath.fill()
         
         let pathRegular = UIBezierPath(arcCenter: center, radius: radius/2 - regularWidth/2 - boldWidth/2, startAngle: 0.0, endAngle: 2 * .pi, clockwise: true)
         pathRegular.lineWidth = regularWidth

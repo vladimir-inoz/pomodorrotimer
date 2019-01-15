@@ -25,9 +25,21 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //adding gesture recognizer to countdown view
+        //standard 0.5s is enough
+        let longTapGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longTapOnCountodwnView))
+        countdownView.addGestureRecognizer(longTapGestureRecognizer)
+        
         //setup countdown view
         countdownView.timeTotal = timeTotal
         countdownView.timeRemaining = timeTotal
+        
+        countdownView.fillRate = 0.5
+    }
+    
+    @objc func longTapOnCountodwnView(_ gestureRecognizer: UIGestureRecognizer) {
+        //long tap - cancel countdown
+        //print("Long tap, state = \(gestureRecognizer.state.raw)")
     }
     
     //start timer
