@@ -50,6 +50,7 @@ class CountdownView: UIView {
     ///Fill rate (0...1)
     public var fillRate: CGFloat = 0.0 {
         didSet {
+            setNeedsDisplay()
             if fillRate < 0.0 {
                 fillRate = 0.0
                 return

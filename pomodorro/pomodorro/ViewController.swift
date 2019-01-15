@@ -29,17 +29,49 @@ class ViewController: UIViewController {
         //standard 0.5s is enough
         let longTapGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longTapOnCountodwnView))
         countdownView.addGestureRecognizer(longTapGestureRecognizer)
+        //tap recognizer to play/pause
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tapOnCountdownView))
+        countdownView.addGestureRecognizer(tapGestureRecognizer)
         
         //setup countdown view
         countdownView.timeTotal = timeTotal
         countdownView.timeRemaining = timeTotal
-        
-        countdownView.fillRate = 0.5
     }
+    
+    ///MARK: - Gesture recognizers handlers
+    
+    let rate: CGFloat = 0.00666
+    var addRate: CGFloat = 0.00666
     
     @objc func longTapOnCountodwnView(_ gestureRecognizer: UIGestureRecognizer) {
         //long tap - cancel countdown
-        //print("Long tap, state = \(gestureRecognizer.state.raw)")
+        if gestureRecognizer.state == .began {
+            countdownView.fillRate = 0.0
+            addRate = rate
+            let _ = Timer.scheduledTimer(withTimeInterval: 0.02, repeats: true) {
+                timer in
+                self.countdownView.fillRate = self.countdownView.fillRate + self.addRate
+                
+                //max fill, invalidating
+                if self.countdownView.fillRate >= 1.0 {
+                    timer.invalidate()
+                    self.countdownView.fillRate = 0.0
+                    self.resetCountdown()
+                }
+                
+                //min fill, invalidating
+                if self.countdownView.fillRate <= 0.0 {
+                    timer.invalidate()
+                }
+            }
+        }
+        
+        if gestureRecognizer.state == .ended || gestureRecognizer.state == .cancelled {
+            addRate = -rate
+        }
+    }
+    
+    @objc func tapOnCountdownView(_ gestureRecognizer: UIGestureRecognizer) {
     }
     
     //start timer
