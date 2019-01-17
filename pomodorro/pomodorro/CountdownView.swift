@@ -149,6 +149,13 @@ extension CountdownView {
             animator?.addCompletion {
                 if $0 == .end {
                     self.delegate?.cancelled()
+                    self.animator?.stopAnimation(false)
+                    self.animator = nil
+                    let completionAnimator = UIViewPropertyAnimator(duration: 0.2, curve: .easeInOut) {
+                        self.rectView.frame = CGRect(x: 0.0, y: self.bounds.height, width: self.bounds.width, height: 0.0)
+                        self.rectView.setNeedsDisplay()
+                    }
+                    completionAnimator.startAnimation()
                 }
             }
             animator?.startAnimation()
