@@ -10,9 +10,9 @@ import UIKit
 
 protocol CountdownViewDelegate {
     //on long tap
-    func cancelled()
+    func countdownViewCancelled(_ : CountdownView)
     //on tap
-    func tapped()
+    func countdownViewTapped()
 }
 
 class CountdownView: UIView {
@@ -148,7 +148,7 @@ extension CountdownView {
             }
             animator?.addCompletion {
                 if $0 == .end {
-                    self.delegate?.cancelled()
+                    self.delegate?.countdownViewCancelled(self)
                     self.animator?.stopAnimation(false)
                     self.animator = nil
                     let completionAnimator = UIViewPropertyAnimator(duration: 0.2, curve: .easeInOut) {
@@ -168,6 +168,6 @@ extension CountdownView {
     }
     
     @objc func tap() {
-        self.delegate?.tapped()
+        self.delegate?.countdownViewTapped()
     }
 }
