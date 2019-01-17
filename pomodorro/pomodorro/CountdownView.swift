@@ -8,14 +8,24 @@
 
 import UIKit
 
+protocol CountdownViewDelegate {
+    //on long tap
+    func cancelled()
+    //on tap
+    func tapped()
+}
+
 class CountdownView: UIView {
     
+    private var rectView: UIView!
+    private var timeLabel: UILabel!
+    
     ///Converting TimeInterval to string 01:12
-    fileprivate func stringFromTimeInterval(interval: TimeInterval) -> NSString {
+    fileprivate func stringFromTimeInterval(interval: TimeInterval) -> String {
         let intervalInt = Int(interval)
         let minutes = intervalInt / 60
         let seconds = intervalInt % 60
-        return NSString(format: "%0.2d:%0.2d",minutes,seconds)
+        return String(format: "%0.2d:%0.2d",minutes,seconds)
     }
     
     ///How much time is remaining
@@ -28,6 +38,7 @@ class CountdownView: UIView {
             if timeRemaining > timeTotal {
                 timeRemaining = timeTotal
             }
+            timeLabel.text = stringFromTimeInterval(interval: timeRemaining)
             setNeedsDisplay()
         }
     }
@@ -47,23 +58,48 @@ class CountdownView: UIView {
         }
     }
     
-    ///Fill rate (0...1)
-    public var fillRate: CGFloat = 0.0 {
-        didSet {
-            setNeedsDisplay()
-            if fillRate < 0.0 {
-                fillRate = 0.0
-                return
-            }
-            if fillRate > 1.0 {
-                fillRate = 1.0
-                return
-            }
-        }
+    ///Animator of full rectangle
+    private var animator: UIViewPropertyAnimator?
+    
+    ///Delegate
+    public var delegate: CountdownViewDelegate?
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setup()
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        setup()
+    }
+    
+    func setup() {
+        rectView = UIView(frame: CGRect(x: 0.0, y: bounds.height, width: bounds.width, height: 0.0))
+        rectView.backgroundColor = UIColor.yellow
+        addSubview(rectView)
+        
+        timeLabel = UILabel(frame: CGRect.zero)
+        timeLabel.text = "00:00"
+        timeLabel.textColor = UIColor.red
+        timeLabel.font = timeLabel.font.withSize(40.0)
+        addSubview(timeLabel)
+        
+        timeLabel.translatesAutoresizingMaskIntoConstraints = false
+        timeLabel.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+        timeLabel.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+        
+        //add some gesture recognizers
+        //standard 0.5s is enough
+        let longTapGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longTap))
+        addGestureRecognizer(longTapGestureRecognizer)
+        //tap recognizer to play/pause
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap))
+        addGestureRecognizer(tapGestureRecognizer)
     }
 
-
     override func draw(_ rect: CGRect) {
+        super.draw(rect)
         let percentComplete: CGFloat = CGFloat(timeRemaining / timeTotal)
         let center = CGPoint(x: bounds.width/2, y: bounds.height/2)
         let radius: CGFloat = min(bounds.width, bounds.height)
@@ -82,11 +118,6 @@ class CountdownView: UIView {
             layer.mask = maskLayer
         }
         
-        //draw fill rect
-        let rectPath = UIBezierPath(rect: CGRect(x: 0.0, y: bounds.height * (1 - fillRate), width: bounds.width, height: bounds.height * fillRate))
-        UIColor.yellow.setFill()
-        rectPath.fill()
-        
         let pathRegular = UIBezierPath(arcCenter: center, radius: radius/2 - regularWidth/2 - boldWidth/2, startAngle: 0.0, endAngle: 2 * .pi, clockwise: true)
         pathRegular.lineWidth = regularWidth
         UIColor.black.setStroke()
@@ -96,15 +127,6 @@ class CountdownView: UIView {
         path.lineWidth = boldWidth
         UIColor.red.setStroke()
         path.stroke()
-        
-        let string = stringFromTimeInterval(interval: timeRemaining)
-        let attributes = [
-            NSAttributedString.Key.font : UIFont.systemFont(ofSize: 40),
-            NSAttributedString.Key.foregroundColor : UIColor.red
-        ]
-        let stringSize = string.size(withAttributes: attributes)
-        let stringRect = CGRect(x: center.x - stringSize.width/2, y: center.y - stringSize.height/2, width: stringSize.width, height: stringSize.height)
-        string.draw(in: stringRect, withAttributes: attributes)
     }
     
     override var intrinsicContentSize: CGSize {
@@ -113,4 +135,32 @@ class CountdownView: UIView {
         }
     }
     
+}
+
+/// handlers
+extension CountdownView {
+    @objc func longTap(_ sender: UIGestureRecognizer) {
+        switch sender.state {
+        case .began:
+            animator = UIViewPropertyAnimator(duration: 2.0, curve: .easeInOut) {
+                self.rectView.frame = CGRect(x: 0.0, y: 0.0, width: self.bounds.width, height: self.bounds.height)
+                self.rectView.setNeedsDisplay()
+            }
+            animator?.addCompletion {
+                if $0 == .end {
+                    self.delegate?.cancelled()
+                }
+            }
+            animator?.startAnimation()
+        case .ended:
+            animator?.isReversed = true
+        default:
+            break
+        }
+        
+    }
+    
+    @objc func tap() {
+        self.delegate?.tapped()
+    }
 }
