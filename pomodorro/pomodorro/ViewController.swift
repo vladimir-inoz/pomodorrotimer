@@ -9,11 +9,12 @@ enum StartStopState {
 
 class ViewController: UIViewController {
     
-    struct Constants {
-        static let pomodorro: Double = 25.0 * 60.0
-    }
-    
     @IBOutlet var countdownView: CountdownView!
+    
+    lazy var durationPickerView: DurationPickerView = {
+        let picker = DurationPickerView(frame: CGRect(x: 0.0, y: view.bounds.height, width: view.bounds.width, height: 0.0))
+        return picker
+    }()
     
     ///User selected time interval
     var timeTotal = 10.0
@@ -32,6 +33,9 @@ class ViewController: UIViewController {
         countdownView.timeTotal = timeTotal
         countdownView.timeRemaining = timeTotal
         countdownView.delegate = self
+        
+        //add duration picker as subview
+        view.addSubview(durationPickerView)
     }
     
     ///Calculate remaining time
@@ -109,6 +113,23 @@ class ViewController: UIViewController {
         timeTotal = sourceViewController.datePicker.countDownDuration
         countdownView.timeRemaining = timeTotal
         countdownView.timeTotal = timeTotal
+    }
+    
+    ///MARK: - manage picker view
+    
+    func showPickerView() {
+        UIView.animate(withDuration: 0.7) {
+            let height: CGFloat = 300.0
+            self.durationPickerView.frame = CGRect(x: 0.0, y: self.view.bounds.height - height, width: self.view.bounds.width, height: height)
+        }
+    }
+    
+    func hidePickerView() {
+        
+    }
+    
+    @IBAction func openPicker() {
+        showPickerView()
     }
 
 }
