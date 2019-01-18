@@ -13,6 +13,7 @@ class ViewController: UIViewController {
     
     lazy var durationPickerView: DurationPickerView = {
         let picker = DurationPickerView(frame: CGRect(x: 0.0, y: view.bounds.height, width: view.bounds.width, height: 0.0))
+        picker.delegate = self
         return picker
     }()
     
@@ -103,29 +104,19 @@ class ViewController: UIViewController {
         }
     }
     
-    ///Update timeTotal from date picker
-    @IBAction func unwindToThisView(sender: UIStoryboardSegue) {
-        guard let sourceViewController = sender.source as? DurationViewController else {
-            return
-        }
-        
-        resetCountdown()
-        timeTotal = sourceViewController.datePicker.countDownDuration
-        countdownView.timeRemaining = timeTotal
-        countdownView.timeTotal = timeTotal
-    }
-    
     ///MARK: - manage picker view
     
     func showPickerView() {
-        UIView.animate(withDuration: 0.7) {
+        UIView.animate(withDuration: 0.4) {
             let height: CGFloat = 300.0
             self.durationPickerView.frame = CGRect(x: 0.0, y: self.view.bounds.height - height, width: self.view.bounds.width, height: height)
         }
     }
     
     func hidePickerView() {
-        
+        UIView.animate(withDuration: 0.4) {
+            self.durationPickerView.frame = CGRect(x: 0.0, y: self.view.bounds.height, width: self.view.bounds.width, height: 0.0)
+        }
     }
     
     @IBAction func openPicker() {
@@ -134,7 +125,24 @@ class ViewController: UIViewController {
 
 }
 
+extension ViewController: DurationPickerViewDelegate {
+    ///When user selects duration with picker view we stop countdown and timeTotal
+    func durationPickerView(_: DurationPickerView, didSelectDuration duration: TimeInterval) {
+        resetCountdown()
+        timeTotal = duration
+        countdownView.timeTotal = timeTotal
+        countdownView.timeRemaining = timeTotal
+        
+        hidePickerView()
+    }
+    
+    func durationPickerViewCancelled(_: DurationPickerView) {
+        hidePickerView()
+    }
+}
+
 extension ViewController: CountdownViewDelegate {
+    ///When user taps we start, pause and resume countdown
     func countdownViewTapped() {
         switch state {
         case .stopped:
@@ -146,6 +154,7 @@ extension ViewController: CountdownViewDelegate {
         }
     }
     
+    ///User long tap resets countdown
     func countdownViewCancelled(_: CountdownView) {
         resetCountdown()
     }

@@ -1,15 +1,10 @@
-//
-//  DurationPickerView.swift
-//  pomodorro
-//
-//  Created by User on 18/01/2019.
-//  Copyright © 2019 ult_v. All rights reserved.
-//
-
 import UIKit
 
 protocol DurationPickerViewDelegate {
-    
+    ///User selected duration with "Done" button
+    func durationPickerView(_ : DurationPickerView, didSelectDuration: TimeInterval)
+    ///User cancelled selection
+    func durationPickerViewCancelled(_ : DurationPickerView)
 }
 
 class DurationPickerView: UIView {
@@ -27,6 +22,8 @@ class DurationPickerView: UIView {
         toolbar.tintColor = UIColor.white
         return toolbar
     }()
+    
+    public var delegate: DurationPickerViewDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -46,7 +43,7 @@ class DurationPickerView: UIView {
             return UIBarButtonItem(customView: label)
         }
         
-        let todayButton = UIBarButtonItem(title: "Today", style: .plain, target: self, action: #selector(donePressed))
+        let todayButton = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelPressed))
         
         let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(donePressed))
         
@@ -75,6 +72,10 @@ class DurationPickerView: UIView {
     }
     
     @objc func donePressed() {
-        
+        delegate?.durationPickerView(self, didSelectDuration: timePicker.countDownDuration)
+    }
+    
+    @objc func cancelPressed() {
+        delegate?.durationPickerViewCancelled(self)
     }
 }
