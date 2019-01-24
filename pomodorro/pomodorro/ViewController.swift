@@ -9,10 +9,18 @@ enum StartStopState {
 
 class ViewController: UIViewController {
     
-    @IBOutlet var countdownView: CountdownView!
+    
+    
+    lazy var countdownView: CountdownView = {
+        let view = CountdownView(frame: CGRect.zero)
+        view.timeTotal = timeTotal
+        view.timeRemaining = timeTotal
+        view.delegate = self
+        return view
+    }()
     
     lazy var durationPickerView: DurationPickerView = {
-        let picker = DurationPickerView(frame: CGRect(x: 0.0, y: view.bounds.height, width: view.bounds.width, height: 0.0))
+        let picker = DurationPickerView(frame: CGRect(x: 0.0, y: view.bounds.height, width: view.bounds.width, height: 300.0))
         picker.delegate = self
         return picker
     }()
@@ -30,13 +38,25 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //setup countdown view
-        countdownView.timeTotal = timeTotal
-        countdownView.timeRemaining = timeTotal
-        countdownView.delegate = self
-        
-        //add duration picker as subview
+        let durationButton = UIButton(type: .roundedRect)
+        durationButton.setTitle("Set duration", for: .normal)
+        durationButton.addTarget(self, action: #selector(openPicker), for: .touchUpInside)
+        view.addSubview(durationButton)
+        view.addSubview(countdownView)
         view.addSubview(durationPickerView)
+        
+        durationButton.translatesAutoresizingMaskIntoConstraints = false
+        countdownView.translatesAutoresizingMaskIntoConstraints = false
+        
+        countdownView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        countdownView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        countdownView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+        countdownView.heightAnchor.constraint(equalTo: countdownView.widthAnchor).isActive = true
+        
+        durationButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor).isActive = true
+        durationButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor).isActive = true
+        durationButton.heightAnchor.constraint(equalToConstant: 44.0).isActive = true
+        durationButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor).isActive = true
     }
     
     ///Calculate remaining time
@@ -115,7 +135,7 @@ class ViewController: UIViewController {
     
     func hidePickerView() {
         UIView.animate(withDuration: 0.4) {
-            self.durationPickerView.frame = CGRect(x: 0.0, y: self.view.bounds.height, width: self.view.bounds.width, height: 0.0)
+            self.durationPickerView.frame = CGRect(x: 0.0, y: self.view.bounds.height, width: self.view.bounds.width, height: 300.0)
         }
     }
     
