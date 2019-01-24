@@ -139,11 +139,20 @@ class CountdownView: UIView {
 
 /// handlers
 extension CountdownView {
+    var rectViewInitialFrame: CGRect {
+        return CGRect(x: 0.0, y: self.bounds.height, width: self.bounds.width, height: 0.0)
+    }
+    
+    var rectViewFinishFrame: CGRect {
+        return CGRect(x: 0.0, y: 0.0, width: self.bounds.width, height: self.bounds.height)
+    }
+    
     @objc func longTap(_ sender: UIGestureRecognizer) {
         switch sender.state {
         case .began:
-            animator = UIViewPropertyAnimator(duration: 2.0, curve: .easeInOut) {
-                self.rectView.frame = CGRect(x: 0.0, y: 0.0, width: self.bounds.width, height: self.bounds.height)
+            self.rectView.frame = rectViewInitialFrame
+            animator = UIViewPropertyAnimator(duration: 1.0, curve: .easeInOut) {
+                self.rectView.frame = self.rectViewFinishFrame
                 self.rectView.setNeedsDisplay()
             }
             animator?.addCompletion {
@@ -152,7 +161,7 @@ extension CountdownView {
                     self.animator?.stopAnimation(false)
                     self.animator = nil
                     let completionAnimator = UIViewPropertyAnimator(duration: 0.2, curve: .easeInOut) {
-                        self.rectView.frame = CGRect(x: 0.0, y: self.bounds.height, width: self.bounds.width, height: 0.0)
+                        self.rectView.frame = self.rectViewInitialFrame
                         self.rectView.setNeedsDisplay()
                     }
                     completionAnimator.startAnimation()
