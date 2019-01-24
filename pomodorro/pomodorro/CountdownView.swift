@@ -99,15 +99,14 @@ class CountdownView: UIView {
     }
 
     override func draw(_ rect: CGRect) {
-        super.draw(rect)
+        UIColor.white.setFill()
+        UIRectFill(bounds)
+        
         let percentComplete: CGFloat = CGFloat(timeRemaining / timeTotal)
         let center = CGPoint(x: bounds.width/2, y: bounds.height/2)
         let radius: CGFloat = min(bounds.width, bounds.height)
         let startAngle: CGFloat = 1.5 * .pi
-        var endAngle: CGFloat = startAngle + 2 * .pi * (percentComplete - 0.0001)
-        while endAngle > 2 * .pi {
-            endAngle = endAngle - 2 * .pi
-        }
+        let endAngle: CGFloat = startAngle + 2 * .pi * (percentComplete - 0.0001)
         
         //first create mask and draw fullfillment rectangle
         if layer.mask == nil {
