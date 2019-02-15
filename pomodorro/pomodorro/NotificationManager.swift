@@ -3,9 +3,6 @@ import UserNotifications
 
 class NotificationManager {
     
-    //all registered reminders
-    var registeredNotificationsIdentifiers = [String]()
-    
     init() {
         let center = UNUserNotificationCenter.current()
         // Request permission to display alerts and play sounds.
@@ -35,13 +32,11 @@ class NotificationManager {
             let request = UNNotificationRequest(identifier: newNotificationIdentifier, content: content, trigger: trigger)
             
             let center = UNUserNotificationCenter.current()
-            center.add(request) { [unowned self] (error : Error?) in
+            center.add(request) {(error : Error?) in
                 if let theError = error {
                     print(theError.localizedDescription)
                     return
                 }
-                //добавляем уведомление в список
-                self.registeredNotificationsIdentifiers.append(newNotificationIdentifier)
             }
         }
     }
@@ -49,7 +44,6 @@ class NotificationManager {
     //delete all current reminders
     public func removeAllReminders() {
         let center = UNUserNotificationCenter.current()
-        center.removePendingNotificationRequests(withIdentifiers: registeredNotificationsIdentifiers)
-        registeredNotificationsIdentifiers.removeAll()
+        center.removeAllPendingNotificationRequests()
     }
 }
