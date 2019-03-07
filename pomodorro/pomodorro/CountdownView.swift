@@ -153,7 +153,6 @@ class CountdownView: UIView {
         rectLayer.frame = CGRect(x: midX, y: 0.0, width: rectWidth, height: rectWidth * 3.0)
         //change transform of arc layer
         arcLayer.frame = bounds
-        arcMaskLayer.frame = bounds
         //change mask layer
         maskLayer.frame = bounds
         let radius: CGFloat = min(bounds.width, bounds.height)/2.0
