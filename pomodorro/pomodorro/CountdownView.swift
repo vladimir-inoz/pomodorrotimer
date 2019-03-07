@@ -16,9 +16,27 @@ protocol CountdownViewDelegate {
 }
 
 class CountdownView: UIView {
+    ///Cancel view
+    private var cancelView: UIView!
+    ///Layers
+    private var timeLayer: CATextLayer!
+    private var rectLayer: CALayer!
+    private var arcLayer: CAReplicatorLayer!
+    private var cancelLayer: CAGradientLayer!
+    private var maskLayer: CAShapeLayer!
     
-    private var rectView: UIView!
-    private var timeLabel: UILabel!
+    static private func cgColorForRed(_ red: CGFloat, green: CGFloat, blue: CGFloat) -> AnyObject {
+        return UIColor(red: red/255.0, green: green/255.0, blue: blue/255.0, alpha: 1.0).cgColor as AnyObject
+    }
+    
+    private let colors: [AnyObject] = [cgColorForRed(209.0, green: 0.0, blue: 0.0),
+    cgColorForRed(255.0, green: 102.0, blue: 34.0),
+    cgColorForRed(255.0, green: 218.0, blue: 33.0),
+    cgColorForRed(51.0, green: 221.0, blue: 0.0),
+    cgColorForRed(17.0, green: 51.0, blue: 204.0),
+    cgColorForRed(34.0, green: 0.0, blue: 102.0),
+    cgColorForRed(51.0, green: 0.0, blue: 68.0)]
+    private let locations: [Float] = [0, 1/6.0, 1/3.0, 0.5, 2/3.0, 5/6.0, 1.0]
     
     ///Converting TimeInterval to string 01:12
     fileprivate func stringFromTimeInterval(interval: TimeInterval) -> String {
@@ -38,7 +56,7 @@ class CountdownView: UIView {
             if timeRemaining > timeTotal {
                 timeRemaining = timeTotal
             }
-            timeLabel.text = stringFromTimeInterval(interval: timeRemaining)
+            timeLayer.string = stringFromTimeInterval(interval: timeRemaining)
             setNeedsDisplay()
         }
     }
@@ -75,19 +93,42 @@ class CountdownView: UIView {
     }
     
     func setup() {
-        rectView = UIView(frame: CGRect(x: 0.0, y: bounds.height, width: bounds.width, height: 0.0))
-        rectView.backgroundColor = UIColor.yellow
-        addSubview(rectView)
+      
+        timeLayer = CATextLayer()
+        timeLayer.string = "00:00"
+        timeLayer.font = UIFont.systemFont(ofSize: 40.0)
+        timeLayer.contentsScale = UIScreen.main.scale
+        timeLayer.alignmentMode = .center
+        timeLayer.foregroundColor = UIColor.black.cgColor
+        timeLayer.zPosition = 10
         
-        timeLabel = UILabel(frame: CGRect.zero)
-        timeLabel.text = "00:00"
-        timeLabel.textColor = UIColor.red
-        timeLabel.font = timeLabel.font.withSize(40.0)
-        addSubview(timeLabel)
+        layer.addSublayer(timeLayer)
         
-        timeLabel.translatesAutoresizingMaskIntoConstraints = false
-        timeLabel.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
-        timeLabel.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+        rectLayer = CALayer()
+        rectLayer.backgroundColor = UIColor.black.cgColor
+        
+        arcLayer = CAReplicatorLayer()
+        arcLayer.addSublayer(rectLayer)
+        arcLayer.instanceCount = Int(60)
+        let angle: CGFloat = 2 * .pi / CGFloat(arcLayer.instanceCount)
+        arcLayer.instanceTransform = CATransform3DMakeRotation(angle, 0.0, 0.0, 1.0)
+        arcLayer.zPosition = 5
+        
+        layer.addSublayer(arcLayer)
+        
+        maskLayer = CAShapeLayer()
+        maskLayer.fillColor = UIColor.black.cgColor
+        layer.mask = maskLayer
+        
+        //add cancel view
+        cancelView = UIView()
+        cancelLayer = CAGradientLayer()
+        cancelLayer.colors = colors
+        cancelLayer.startPoint = CGPoint(x: 0.5, y: 0.0)
+        cancelLayer.endPoint = CGPoint(x: 0.5, y: 1.0)
+        cancelLayer.locations = locations as [NSNumber]?
+        cancelView.layer.addSublayer(cancelLayer)
+        addSubview(cancelView)
         
         //add some gesture recognizers
         //standard 0.5s is enough
@@ -97,37 +138,31 @@ class CountdownView: UIView {
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap))
         addGestureRecognizer(tapGestureRecognizer)
     }
-
-    override func draw(_ rect: CGRect) {
-        UIColor.white.setFill()
-        UIRectFill(bounds)
-        
-        let percentComplete: CGFloat = CGFloat(timeRemaining / timeTotal)
-        let center = CGPoint(x: bounds.width/2, y: bounds.height/2)
-        let radius: CGFloat = min(bounds.width, bounds.height)
-        let startAngle: CGFloat = 1.5 * .pi
-        let endAngle: CGFloat = startAngle + 2 * .pi * (percentComplete - 0.0001)
-        
-        //first create mask and draw fullfillment rectangle
-        if layer.mask == nil {
-            let fullCirclePath = UIBezierPath(arcCenter: center, radius: radius/2 - regularWidth/2 - boldWidth/2, startAngle: 0.0, endAngle: 2 * .pi, clockwise: true).cgPath
-            let maskLayer = CAShapeLayer()
-            maskLayer.path = fullCirclePath
-            maskLayer.fillColor = UIColor.black.cgColor
-            layer.mask = maskLayer
-        }
-        
-        let pathRegular = UIBezierPath(arcCenter: center, radius: radius/2 - regularWidth/2 - boldWidth/2, startAngle: 0.0, endAngle: 2 * .pi, clockwise: true)
-        pathRegular.lineWidth = regularWidth
-        UIColor.black.setStroke()
-        pathRegular.stroke()
-        
-        let path = UIBezierPath(arcCenter: center, radius: radius/2 - boldWidth/2, startAngle: startAngle, endAngle: endAngle, clockwise: true)
-        path.lineWidth = boldWidth
-        UIColor.red.setStroke()
-        path.stroke()
-    }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        //change frames of sublayers
+        let center = CGPoint(x: (bounds.maxX - bounds.minX)/2.0, y: (bounds.maxY - bounds.minY)/2.0)
+        let origin = CGPoint(x: center.x - timeLayer.bounds.width / 2.0, y: center.y - timeLayer.bounds.height / 2.0)
+        let size = CGSize(width: bounds.width, height: 40.0)
+        let frame = CGRect(origin: origin, size: size)
+        timeLayer.frame = frame
+        //change rectLayer
+        let rectWidth: CGFloat = 5.0
+        let midX = center.x - rectWidth / 2.0
+        rectLayer.frame = CGRect(x: midX, y: 0.0, width: rectWidth, height: rectWidth * 3.0)
+        //change transform of arc layer
+        arcLayer.frame = bounds
+        arcMaskLayer.frame = bounds
+        //change mask layer
+        maskLayer.frame = bounds
+        let radius: CGFloat = min(bounds.width, bounds.height)/2.0
+        let fullCirclePath = UIBezierPath(arcCenter: center, radius: radius, startAngle: 0.0, endAngle: 2 * .pi, clockwise: true).cgPath
+        maskLayer.path = fullCirclePath
+        //change gradient layer
+        cancelLayer.frame = bounds
+    }
+
     override var intrinsicContentSize: CGSize {
         get {
             return CGSize(width: 200.0, height: 200.0)
@@ -149,10 +184,11 @@ extension CountdownView {
     @objc func longTap(_ sender: UIGestureRecognizer) {
         switch sender.state {
         case .began:
-            self.rectView.frame = rectViewInitialFrame
+            self.cancelView.frame = rectViewInitialFrame
             animator = UIViewPropertyAnimator(duration: 1.0, curve: .easeInOut) {
-                self.rectView.frame = self.rectViewFinishFrame
-                self.rectView.setNeedsDisplay()
+                UIView.animate(withDuration: 1.0) {
+                    self.cancelView.frame = self.rectViewFinishFrame
+                }
             }
             animator?.addCompletion {
                 if $0 == .end {
@@ -160,8 +196,8 @@ extension CountdownView {
                     self.animator?.stopAnimation(false)
                     self.animator = nil
                     let completionAnimator = UIViewPropertyAnimator(duration: 0.2, curve: .easeInOut) {
-                        self.rectView.frame = self.rectViewInitialFrame
-                        self.rectView.setNeedsDisplay()
+                        self.cancelView.frame = self.rectViewInitialFrame
+                        self.cancelView.setNeedsDisplay()
                     }
                     completionAnimator.startAnimation()
                 }
